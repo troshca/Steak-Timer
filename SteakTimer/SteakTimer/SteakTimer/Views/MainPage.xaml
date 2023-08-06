@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SteakTimer.Views.MainPage"
+             Title="{Binding Title}">
+
+    <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+        <Label Text="Welcome to Xamarin Forms and Prism!" 
+               FontSize="Large"/>
+        <Button Text="1 steak" 
+                Command="{Binding OneSteakCommand}"
+                CommandParameter="1"/>
+        <ImageButton Source="1steak.png"
+                     HorizontalOptions="Center"
+                     VerticalOptions="CenterAndExpand"
+                     Command="{Binding OneSteakCommand}"
+                     CommandParameter="1"/>
+    </StackLayout>
+
+</ContentPage>

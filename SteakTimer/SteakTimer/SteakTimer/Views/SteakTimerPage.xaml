@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Xamarin.Forms;assembly=LiveChartsCore.SkiaSharpView.XamarinForms"
+             x:Class="SteakTimer.Views.SteakTimerPage">
+    <ContentPage.Content>
+        <StackLayout>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="100*"/>
+                </Grid.RowDefinitions>
+
+                <Button Grid.Row="0" Command="{Binding StartCommand}" Text="Start"></Button>
+
+                <lvc:PieChart
+                    HeightRequest="500"
+                    Grid.Row="1"
+                    Series="{Binding Series}"
+                    InitialRotation="-90"
+                    Total="360"
+                    LegendPosition="Bottom">
+                </lvc:PieChart>
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
