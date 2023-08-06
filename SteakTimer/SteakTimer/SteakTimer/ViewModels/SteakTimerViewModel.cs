@@ -84,7 +84,7 @@ namespace SteakTimer.ViewModels
             StartCommand = new DelegateCommand(Start);
         }
 
-		{        public async void Start()
+		public async void Start()
         {
             if (_started) return;
             _started = true;
@@ -141,9 +141,10 @@ namespace SteakTimer.ViewModels
                                 SecondFried.Value -= SecondCrustDiff;
                                 await Task.Delay(1000);
                                 if (SecondFried.Value <= 0)
-								{
-									SecondFried.Value = 0;
-									break;
+                                {
+                                    SecondFried.Value = 0;
+                                    break;
+                                }
                             }
                             break;
                         }
