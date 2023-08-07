@@ -4,23 +4,63 @@
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Xamarin.Forms;assembly=LiveChartsCore.SkiaSharpView.XamarinForms"
              x:Class="SteakTimer.Views.SteakTimerPage">
     <ContentPage.Content>
-        <StackLayout>
+        <StackLayout Padding="20">
             <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50*"/>
+                    <ColumnDefinition Width="50*"/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="100*"/>
+                    <RowDefinition Height="70*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="15*"/>
                 </Grid.RowDefinitions>
-
-                <Button Grid.Row="0" Command="{Binding StartCommand}" Text="Start"></Button>
 
                 <lvc:PieChart
                     HeightRequest="500"
-                    Grid.Row="1"
+                    Grid.Row="0"
+                    Grid.ColumnSpan="2"
                     Series="{Binding Series}"
                     InitialRotation="-90"
                     Total="360"
                     LegendPosition="Bottom">
                 </lvc:PieChart>
+
+                <Button Grid.Row="1" Grid.ColumnSpan="2" Command="{Binding StartCommand}" Text="Start"></Button>
+
+                <Label  Grid.Row="2" Grid.Column="0"
+                        FontSize="Large"
+                        Text="{Binding PickerCrustSelection.Name, StringFormat='Корочка: {0:C}'}"/>
+
+                <Label 
+                       Grid.Row="2" Grid.Column="1"
+                       FontSize="Large"
+                       Text="{Binding PickerFriedSelection.Name, StringFormat='Прожарка: {0:C}'}"/>
+
+                <StackLayout 
+                        Grid.Row="3" Grid.ColumnSpan="2"
+                        Orientation="Horizontal" HorizontalOptions="CenterAndExpand">
+                    <Label
+                        VerticalOptions="Center"
+                        Text="{Binding PauseTime, StringFormat='Добавить паузу {0} c на переворот'}" />
+                    <CheckBox  
+                        VerticalOptions="Center" 
+                        IsChecked="{Binding AddPause, Mode=TwoWay}" />
+
+                </StackLayout>
+
+                <Picker Grid.Row="4" Grid.Column="0"
+                        Title="Корочка" 
+                        ItemsSource="{Binding CrustTimePickerCollection}" 
+                        SelectedItem="{Binding PickerCrustSelection}" />
+                
+                <Picker Grid.Row="4" Grid.Column="1"
+                        Title="Прожарка" 
+                        ItemsSource="{Binding FriedTimePickerCollection}" 
+                        SelectedItem="{Binding PickerFriedSelection}" />
+
             </Grid>
         </StackLayout>
     </ContentPage.Content>
