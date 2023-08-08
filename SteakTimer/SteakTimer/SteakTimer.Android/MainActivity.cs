@@ -1,8 +1,11 @@
 ﻿using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Prism;
 using Prism.Ioc;
+using SteakTimer.Interfaces;
+using Xamarin.Forms;
 
 namespace SteakTimer.Droid
 {
@@ -23,6 +26,22 @@ namespace SteakTimer.Droid
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        protected override void OnNewIntent(Intent intent)
+        {
+            CreateNotificationFromIntent(intent);
+        }
+
+        void CreateNotificationFromIntent(Intent intent)
+        {
+            if (intent?.Extras != null)
+            {
+                string title = intent.GetStringExtra(AndroidNotificationManager.TitleKey);
+                string message = intent.GetStringExtra(AndroidNotificationManager.MessageKey);
+
+                DependencyService.Get<INotificationManager>().ReceiveNotification(title, message);
+            }
         }
     }
 

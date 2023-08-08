@@ -2,7 +2,7 @@
 using Prism;
 using Prism.Ioc;
 using UIKit;
-
+using UserNotifications;
 
 namespace SteakTimer.iOS
 {
@@ -22,6 +22,7 @@ namespace SteakTimer.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             global::Xamarin.Forms.Forms.Init();
+            UNUserNotificationCenter.Current.Delegate = new iOSNotificationReceiver();
             LoadApplication(new App(new iOSInitializer()));
 
             return base.FinishedLaunching(app, options);

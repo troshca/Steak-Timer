@@ -12,11 +12,13 @@ using System.Linq;
 using Xamarin.Forms;
 using SkiaSharp;
 using SteakTimer.Models;
+using SteakTimer.Interfaces;
 
 namespace SteakTimer.ViewModels
 {
     public class SteakTimerViewModel : ViewModelBase
     {
+        INotificationManager notificationManager;
         public DelegateCommand StartCommand { get; private set; }
 
 
@@ -146,9 +148,28 @@ namespace SteakTimer.ViewModels
 
             //Buttons
             StartCommand = new DelegateCommand(Start);
+
+            //Notification
+            notificationManager = DependencyService.Get<INotificationManager>();
+            notificationManager.NotificationReceived += (sender, eventArgs) =>
+            {
+                var evtData = (NotificationEventArgs)eventArgs;
+                ShowNotification(evtData.Title, evtData.Message);
+            };
         }
 
-		public async void Start()
+        private void ShowNotification(string title, string message)
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                var msg = new Label()
+                {
+                    Text = $"Notification Received:\nTitle: {title}\nMessage: {message}"
+                };
+            });
+        }
+
+        public async void Start()
         {
             if (_started) return;
             _started = true;
@@ -170,6 +191,10 @@ namespace SteakTimer.ViewModels
             FirstFriedDiff = _degreesOfCircle / FirstFriedTimeInSeconds / 2;
             SecondFriedDiff = _degreesOfCircle / SecondFriedTimeInSeconds / 2;
 
+            //Messages
+            string title = $"Переворачивай";
+            string message = $"Переворачивай свой стейк пока не сгорел!";
+
             for (_currentStage = Stages.FirstCrust; _currentStage <= Stages.SecondFried; _currentStage++)
             {
                 switch (_currentStage)
@@ -186,7 +211,8 @@ namespace SteakTimer.ViewModels
 									break;
 								}
                             }
-                            if(AddPause)
+                            notificationManager.SendNotification(title, message);
+                            if (AddPause)
                                 await Task.Delay(PauseTime * 1000);
                             break;
                         }
@@ -202,6 +228,7 @@ namespace SteakTimer.ViewModels
 									break;
 								}
                             }
+                            notificationManager.SendNotification(title, message);
                             if (AddPause)
                                 await Task.Delay(PauseTime * 1000);
                             break;
@@ -218,6 +245,7 @@ namespace SteakTimer.ViewModels
 									break;
 								}
                             }
+                            notificationManager.SendNotification(title, message);
                             if (AddPause)
                                 await Task.Delay(PauseTime * 1000);
                             break;
@@ -234,26 +262,14 @@ namespace SteakTimer.ViewModels
                                     break;
                                 }
                             }
-                            if (AddPause)
-                                await Task.Delay(PauseTime * 1000);
+                            title = $"Снимай!";
+                            message = $"Приятного аппетита";
+                            notificationManager.SendNotification(title, message);
                             break;
                         }
                 }
             }
             _started = false;
-        }
-
-        private async Task SecondsTickTask()
-        {
-            while (true)
-            {
-                await Task.Delay(1000);
-            }
-        }
-
-        private int FindMax(params int[] values)
-        {
-            return Enumerable.Max(values);
         }
     }
 }

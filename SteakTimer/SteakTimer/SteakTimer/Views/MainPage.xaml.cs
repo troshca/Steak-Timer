@@ -1,4 +1,6 @@
-﻿namespace SteakTimer.Views
+﻿using Xamarin.Forms;
+
+namespace SteakTimer.Views
 {
     public partial class MainPage
     {

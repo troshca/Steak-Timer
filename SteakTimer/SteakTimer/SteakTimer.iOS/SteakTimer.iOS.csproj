@@ -99,6 +99,8 @@
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\iOSNotificationManager.cs" />
+    <Compile Include="Interfaces\iOSNotificationReceiver.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <None Include="Entitlements.plist" />
