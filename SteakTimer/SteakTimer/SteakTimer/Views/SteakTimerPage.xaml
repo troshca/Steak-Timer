@@ -2,7 +2,18 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Xamarin.Forms;assembly=LiveChartsCore.SkiaSharpView.XamarinForms"
-             x:Class="SteakTimer.Views.SteakTimerPage">
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             x:Class="SteakTimer.Views.SteakTimerPage"
+             NavigationPage.HasBackButton="False"
+             NavigationPage.HasNavigationBar="False"
+             Title="{Binding Title}">
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <xct:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
     <ContentPage.Content>
         <StackLayout Padding="20">
             <Grid>
@@ -28,7 +39,12 @@
                     LegendPosition="Bottom">
                 </lvc:PieChart>
 
-                <Button Grid.Row="1" Grid.ColumnSpan="2" Command="{Binding StartCommand}" Text="Start"></Button>
+                <StackLayout Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+                    <Button WidthRequest="200" HorizontalOptions="Center"
+                        Command="{Binding StartCommand}" 
+                        Text="Start" FontSize="Large"
+                        IsEnabled="{Binding Started, Converter={StaticResource InvertedBoolConverter}}"/>
+                </StackLayout>
 
                 <Label  Grid.Row="2" Grid.Column="0"
                         FontSize="Large"
@@ -54,12 +70,14 @@
                 <Picker Grid.Row="4" Grid.Column="0"
                         Title="Корочка" 
                         ItemsSource="{Binding CrustTimePickerCollection}" 
-                        SelectedItem="{Binding PickerCrustSelection}" />
+                        SelectedItem="{Binding PickerCrustSelection}"
+                        IsEnabled="{Binding Started, Converter={StaticResource InvertedBoolConverter}}"/>
                 
                 <Picker Grid.Row="4" Grid.Column="1"
                         Title="Прожарка" 
                         ItemsSource="{Binding FriedTimePickerCollection}" 
-                        SelectedItem="{Binding PickerFriedSelection}" />
+                        SelectedItem="{Binding PickerFriedSelection}" 
+                        IsEnabled="{Binding Started, Converter={StaticResource InvertedBoolConverter}}"/>
 
             </Grid>
         </StackLayout>

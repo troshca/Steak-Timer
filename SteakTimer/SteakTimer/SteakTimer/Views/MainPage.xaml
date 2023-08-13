@@ -2,15 +2,12 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SteakTimer.Views.MainPage"
+             xmlns:forms="clr-namespace:Lottie.Forms;assembly=Lottie.Forms" 
+             NavigationPage.HasNavigationBar="False"
              Title="{Binding Title}">
 
-    <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
-        <Label Text="Welcome to Xamarin Forms and Prism!" 
-               FontSize="Large"/>
-        <Button Text="1 steak" 
-                Command="{Binding OneSteakCommand}"
-                CommandParameter="1"/>
-        <ImageButton Source="1steak.png"
+    <StackLayout Padding="20" HorizontalOptions="Center" VerticalOptions="Center">
+        <ImageButton Source="steakButton.png"
                      HorizontalOptions="Center"
                      VerticalOptions="CenterAndExpand"
                      Command="{Binding OneSteakCommand}"

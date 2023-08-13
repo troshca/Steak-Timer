@@ -12,11 +12,14 @@ using System.Linq;
 using Xamarin.Forms;
 using SkiaSharp;
 using SteakTimer.Models;
+using SteakTimer.Interfaces;
+using Acr.UserDialogs;
 
 namespace SteakTimer.ViewModels
 {
     public class SteakTimerViewModel : ViewModelBase
     {
+        INotificationManager notificationManager;
         public DelegateCommand StartCommand { get; private set; }
 
 
@@ -32,7 +35,12 @@ namespace SteakTimer.ViewModels
             End
         }
         private Stages _currentStage { get; set; }
-        private bool _started {  get; set; }
+        private bool _started;
+        public bool Started
+        {
+            get { return _started; }
+            set { SetProperty(ref _started, value); }
+        }
         private int _pauseTime;
         public int PauseTime
         {
@@ -138,20 +146,39 @@ namespace SteakTimer.ViewModels
             Series = new GaugeBuilder()
                 .WithOffsetRadius(5)
                 .WithLabelsSize(0)
-                .AddValue(FirstCrust, "FirstCrustTime", SKColors.SaddleBrown)
-                .AddValue(SecondCrust, "SecondCrustime", SKColors.SaddleBrown)
-                .AddValue(FirstFried, "FirstFriedTime", SKColors.SaddleBrown)
-                .AddValue(SecondFried, "SecondFriedTime", SKColors.SaddleBrown)
+                .AddValue(FirstCrust, "Первая сторона корочки", SKColors.DarkRed)
+                .AddValue(SecondCrust, "Вторая сторона корочки", SKColors.IndianRed)
+                .AddValue(FirstFried, "Первая сторона прожарки", SKColors.Brown)
+                .AddValue(SecondFried, "Вторая сторона прожарки", SKColors.SaddleBrown)
                 .BuildSeries();
 
             //Buttons
             StartCommand = new DelegateCommand(Start);
+
+            //Notification
+            notificationManager = DependencyService.Get<INotificationManager>();
+            notificationManager.NotificationReceived += (sender, eventArgs) =>
+            {
+                var evtData = (NotificationEventArgs)eventArgs;
+                ShowNotification(evtData.Title, evtData.Message);
+            };
         }
 
-		public async void Start()
+        private void ShowNotification(string title, string message)
         {
-            if (_started) return;
-            _started = true;
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                var msg = new Label()
+                {
+                    Text = $"Notification Received:\nTitle: {title}\nMessage: {message}"
+                };
+            });
+        }
+
+        public async void Start()
+        {
+            if (Started) return;
+            Started = true;
 
             FirstCrust.Value = _degreesOfCircle;
             SecondCrust.Value = _degreesOfCircle;
@@ -170,6 +197,18 @@ namespace SteakTimer.ViewModels
             FirstFriedDiff = _degreesOfCircle / FirstFriedTimeInSeconds / 2;
             SecondFriedDiff = _degreesOfCircle / SecondFriedTimeInSeconds / 2;
 
+            //Messages
+            string title = $"Переворачивай";
+            string message = $"Переворачивай свой стейк пока не сгорел!";
+
+            //Toasts config
+            var toastConfig = new ToastConfig(title);
+            toastConfig.BackgroundColor = Color.White;
+            toastConfig.MessageTextColor = Color.Black;
+            toastConfig.Position = ToastPosition.Bottom;
+            toastConfig.Duration = TimeSpan.FromSeconds(5);
+            toastConfig.Icon = "icon1.png";
+
             for (_currentStage = Stages.FirstCrust; _currentStage <= Stages.SecondFried; _currentStage++)
             {
                 switch (_currentStage)
@@ -186,7 +225,9 @@ namespace SteakTimer.ViewModels
 									break;
 								}
                             }
-                            if(AddPause)
+                            _ = UserDialogs.Instance.Toast(toastConfig);
+                            notificationManager.SendNotification(title, message);
+                            if (AddPause)
                                 await Task.Delay(PauseTime * 1000);
                             break;
                         }
@@ -202,6 +243,8 @@ namespace SteakTimer.ViewModels
 									break;
 								}
                             }
+                            _ = UserDialogs.Instance.Toast(toastConfig);
+                            notificationManager.SendNotification(title, message);
                             if (AddPause)
                                 await Task.Delay(PauseTime * 1000);
                             break;
@@ -218,6 +261,8 @@ namespace SteakTimer.ViewModels
 									break;
 								}
                             }
+                            _ = UserDialogs.Instance.Toast(toastConfig);
+                            notificationManager.SendNotification(title, message);
                             if (AddPause)
                                 await Task.Delay(PauseTime * 1000);
                             break;
@@ -234,26 +279,20 @@ namespace SteakTimer.ViewModels
                                     break;
                                 }
                             }
-                            if (AddPause)
-                                await Task.Delay(PauseTime * 1000);
+                            title = $"Снимай!";
+                            message = $"Приятного аппетита";
+                            toastConfig.Message = title + message;
+                            _ = UserDialogs.Instance.Toast(toastConfig);
+                            notificationManager.SendNotification(title, message);
                             break;
                         }
                 }
             }
-            _started = false;
-        }
-
-        private async Task SecondsTickTask()
-        {
-            while (true)
-            {
-                await Task.Delay(1000);
-            }
-        }
-
-        private int FindMax(params int[] values)
-        {
-            return Enumerable.Max(values);
+            Started = false;
+            FirstCrust.Value = _degreesOfCircle;
+            SecondCrust.Value = _degreesOfCircle;
+            FirstFried.Value = _degreesOfCircle;
+            SecondFried.Value = _degreesOfCircle;
         }
     }
 }

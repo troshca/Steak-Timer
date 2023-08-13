@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using Acr.UserDialogs;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
 using System;
@@ -21,7 +22,7 @@ namespace SteakTimer.ViewModels
 
         void Submit()
         {
-            var result = NavigationService.NavigateAsync("NavigationPage/SteakTimerPage");
+            var result = NavigationService.NavigateAsync("NavigationPage/SteakTimerPage", useModalNavigation: true);
             if (result.IsFaulted) { System.Diagnostics.Debug.WriteLine(result.Exception.ToString()); }
         }
     }

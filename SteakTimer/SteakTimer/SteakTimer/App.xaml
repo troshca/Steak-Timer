@@ -7,6 +7,7 @@
         <Color x:Key="PrimaryColor">#006898</Color>
         <Color x:Key="AccentColor">#00A5F2</Color>
         <Color x:Key="TextColor">White</Color>
+        <Color x:Key="PageBackgroundColor">White</Color>
 
         <Style TargetType="TabbedPage">
             <Setter Property="BarBackgroundColor" Value="{StaticResource PrimaryColor}" />
