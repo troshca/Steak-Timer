@@ -7,6 +7,8 @@ using Prism.Ioc;
 using SteakTimer.Interfaces;
 using Xamarin.Forms;
 using Acr.UserDialogs;
+using Plugin.LocalNotification;
+using Plugin.LocalNotification.AndroidOption;
 
 namespace SteakTimer.Droid
 {
@@ -17,9 +19,19 @@ namespace SteakTimer.Droid
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            LocalNotificationCenter.MainActivity = this;
+            LocalNotificationCenter.CreateNotificationChannel(new NotificationChannelRequest
+            {
+                Name = AndroidOptions.DefaultGroupName,
+                Importance = AndroidImportance.Max,
+                EnableSound = true,
+                EnableVibration = true,
+                EnableLights = true,
+            });
             UserDialogs.Init(this);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App(new AndroidInitializer()));
+            LocalNotificationCenter.NotifyNotificationTapped(Intent);
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Android.Content.PM.Permission[] grantResults)
@@ -31,18 +43,8 @@ namespace SteakTimer.Droid
 
         protected override void OnNewIntent(Intent intent)
         {
-            CreateNotificationFromIntent(intent);
-        }
-
-        void CreateNotificationFromIntent(Intent intent)
-        {
-            if (intent?.Extras != null)
-            {
-                string title = intent.GetStringExtra(AndroidNotificationManager.TitleKey);
-                string message = intent.GetStringExtra(AndroidNotificationManager.MessageKey);
-
-                DependencyService.Get<INotificationManager>().ReceiveNotification(title, message);
-            }
+            //LocalNotificationCenter.NotifyNotificationTapped(intent);
+            base.OnNewIntent(intent);
         }
     }
 

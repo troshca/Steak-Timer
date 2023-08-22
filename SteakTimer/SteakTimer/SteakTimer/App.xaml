@@ -4,8 +4,8 @@
              xmlns:prism="http://prismlibrary.com"
              x:Class="SteakTimer.App">
   <Application.Resources>
-        <Color x:Key="PrimaryColor">#006898</Color>
-        <Color x:Key="AccentColor">#00A5F2</Color>
+        <Color x:Key="PrimaryColor">#663300</Color>
+        <Color x:Key="AccentColor">#EAC79D</Color>
         <Color x:Key="TextColor">White</Color>
         <Color x:Key="PageBackgroundColor">White</Color>
 

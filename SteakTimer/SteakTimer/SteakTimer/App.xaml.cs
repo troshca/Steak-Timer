@@ -19,7 +19,7 @@ namespace SteakTimer
         {
             InitializeComponent();
 
-            await NavigationService.NavigateAsync("NavigationPage/MainPage");
+            await NavigationService.NavigateAsync("NavigationPage/SteakTimerPage");
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)

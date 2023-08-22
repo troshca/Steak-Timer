@@ -12,19 +12,25 @@ using System.Linq;
 using Xamarin.Forms;
 using SkiaSharp;
 using SteakTimer.Models;
-using SteakTimer.Interfaces;
 using Acr.UserDialogs;
+using Xamarin.Essentials;
+using System.Reflection;
+using Plugin.LocalNotification;
 
 namespace SteakTimer.ViewModels
 {
     public class SteakTimerViewModel : ViewModelBase
     {
-        INotificationManager notificationManager;
         public DelegateCommand StartCommand { get; private set; }
 
+        //
+        private string timeLeft;
+        public string TimeLeft
+        {
+            get { return timeLeft; }
+            set { SetProperty(ref timeLeft, value); }
+        }
 
-        private readonly Random _random = new Random();
-        
         //
         enum Stages
         {
@@ -54,10 +60,10 @@ namespace SteakTimer.ViewModels
             set { SetProperty(ref _addPause, value); }
         }
 
-        private int _degreesOfCircle {  get; set; }
+        private int _degreesOfCircle { get; set; }
         public ObservableValue FirstCrust { get; set; }
         public int FirstCrustTimeInSeconds { get; set; }
-        public double FirstCrustDiff { get; set; } 
+        public double FirstCrustDiff { get; set; }
         public ObservableValue SecondCrust { get; set; }
         public int SecondCrustTimeInSeconds { get; set; }
         public double SecondCrustDiff { get; set; }
@@ -101,11 +107,11 @@ namespace SteakTimer.ViewModels
         {
             //Picker
             _timesForPickers = new List<MySpecialTime>();
-            for(int i = 10; i <= 10 * 6 * 10; )
+            for (int i = 10; i <= 10 * 6 * 10;)
             {
-                if( i / 60 >= 1 )
+                if (i / 60 >= 1)
                 {
-                    if((i - (i / 60) * 60) == 0)
+                    if ((i - (i / 60) * 60) == 0)
                     {
                         _timesForPickers.Add(new MySpecialTime((i / 60).ToString() + " мин. ", i));
                     }
@@ -119,7 +125,7 @@ namespace SteakTimer.ViewModels
                     _timesForPickers.Add(new MySpecialTime(i.ToString() + " сек.", i));
                 }
                 i += 10;
-            }       
+            }
 
             //Fill pickers
             CrustTimePickerCollection = _timesForPickers;
@@ -128,6 +134,10 @@ namespace SteakTimer.ViewModels
             //Select default
             PickerCrustSelection = _timesForPickers[5];
             PickerFriedSelection = _timesForPickers[8];
+
+            //
+            TimeLeft = "< " + ((PickerCrustSelection.Value * 2) / 60 + (PickerFriedSelection.Value * 2) / 60).ToString() + "мин.";
+            //Interval = TimeSpan.FromMilliseconds(500);
 
             //Degrees of Circle
             _degreesOfCircle = 360;
@@ -146,6 +156,7 @@ namespace SteakTimer.ViewModels
             Series = new GaugeBuilder()
                 .WithOffsetRadius(5)
                 .WithLabelsSize(0)
+                .WithInnerRadius(75)
                 .AddValue(FirstCrust, "Первая сторона корочки", SKColors.DarkRed)
                 .AddValue(SecondCrust, "Вторая сторона корочки", SKColors.IndianRed)
                 .AddValue(FirstFried, "Первая сторона прожарки", SKColors.Brown)
@@ -153,15 +164,9 @@ namespace SteakTimer.ViewModels
                 .BuildSeries();
 
             //Buttons
-            StartCommand = new DelegateCommand(Start);
+            StartCommand = new DelegateCommand(async () => await StartJob());
 
             //Notification
-            notificationManager = DependencyService.Get<INotificationManager>();
-            notificationManager.NotificationReceived += (sender, eventArgs) =>
-            {
-                var evtData = (NotificationEventArgs)eventArgs;
-                ShowNotification(evtData.Title, evtData.Message);
-            };
         }
 
         private void ShowNotification(string title, string message)
@@ -177,8 +182,16 @@ namespace SteakTimer.ViewModels
 
         public async void Start()
         {
+
+            if (await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
+            {
+                await LocalNotificationCenter.Current.RequestNotificationPermission();
+            }
+
             if (Started) return;
             Started = true;
+
+            DeviceDisplay.KeepScreenOn = true;
 
             FirstCrust.Value = _degreesOfCircle;
             SecondCrust.Value = _degreesOfCircle;
@@ -192,22 +205,78 @@ namespace SteakTimer.ViewModels
             SecondFriedTimeInSeconds = PickerFriedSelection.Value;
 
             //Degrees per second
-            FirstCrustDiff = _degreesOfCircle / FirstCrustTimeInSeconds / 2;
-            SecondCrustDiff = _degreesOfCircle / SecondCrustTimeInSeconds / 2;
-            FirstFriedDiff = _degreesOfCircle / FirstFriedTimeInSeconds / 2;
-            SecondFriedDiff = _degreesOfCircle / SecondFriedTimeInSeconds / 2;
+            FirstCrustDiff = (double)_degreesOfCircle / FirstCrustTimeInSeconds / 2;
+            SecondCrustDiff = (double)_degreesOfCircle / SecondCrustTimeInSeconds / 2;
+            FirstFriedDiff = (double)_degreesOfCircle / FirstFriedTimeInSeconds / 2;
+            SecondFriedDiff = (double)_degreesOfCircle / SecondFriedTimeInSeconds / 2;
 
             //Messages
             string title = $"Переворачивай";
             string message = $"Переворачивай свой стейк пока не сгорел!";
 
-            //Toasts config
+            //Config all notifications
+            var timeToAlarm = DateTime.Now.AddSeconds(FirstCrustTimeInSeconds);
+            System.Diagnostics.Debug.WriteLine(timeToAlarm);
+
+            var notificationFirstCrust = new NotificationRequest
+            {
+                NotificationId = 100,
+                Title = title,
+                Schedule =
+                {
+                    NotifyTime = timeToAlarm
+                }
+            };
+            timeToAlarm = timeToAlarm.AddSeconds(SecondCrustTimeInSeconds);
+            if(AddPause)
+            { timeToAlarm = timeToAlarm.AddSeconds(5); }
+            var notificationSecondCrust = new NotificationRequest
+            {
+                NotificationId = 101,
+                Title = title,
+                Schedule =
+                {
+                    NotifyTime = timeToAlarm
+                }
+            };
+            timeToAlarm = timeToAlarm.AddSeconds(FirstFriedTimeInSeconds);
+            if (AddPause)
+            { timeToAlarm = timeToAlarm.AddSeconds(5); }
+            var notificationFirstFried = new NotificationRequest
+            {
+                NotificationId = 102,
+                Title = title,
+                Schedule =
+                {
+                    NotifyTime = timeToAlarm
+                }
+            };
+            timeToAlarm = timeToAlarm.AddSeconds(SecondFriedTimeInSeconds);
+            if (AddPause)
+            { timeToAlarm = timeToAlarm.AddSeconds(5); }
+            var notificationSecondFried = new NotificationRequest
+            {
+                NotificationId = 103,
+                Title = title,
+                Description = "Приятного аппетита",
+                Schedule =
+                {
+                    NotifyTime = timeToAlarm,
+                }
+            };
+
+            //Showing notifications
+            _ = LocalNotificationCenter.Current.Show(notificationFirstCrust);
+            _ = LocalNotificationCenter.Current.Show(notificationSecondCrust);
+            _ = LocalNotificationCenter.Current.Show(notificationFirstFried);
+            _ = LocalNotificationCenter.Current.Show(notificationSecondFried);
+
+            //Toasts config (delete?)
             var toastConfig = new ToastConfig(title);
             toastConfig.BackgroundColor = Color.White;
             toastConfig.MessageTextColor = Color.Black;
             toastConfig.Position = ToastPosition.Bottom;
             toastConfig.Duration = TimeSpan.FromSeconds(5);
-            toastConfig.Icon = "icon1.png";
 
             for (_currentStage = Stages.FirstCrust; _currentStage <= Stages.SecondFried; _currentStage++)
             {
@@ -215,18 +284,18 @@ namespace SteakTimer.ViewModels
                 {
                     case Stages.FirstCrust:
                         {
-                            for (;;)
+                            for (; ; )
                             {
                                 FirstCrust.Value -= FirstCrustDiff;
                                 await Task.Delay(500);
-                                if (FirstCrust.Value <= 0) 
-								{
-									FirstCrust.Value = 0;
-									break;
-								}
+                                if (FirstCrust.Value <= 0)
+                                {
+                                    FirstCrust.Value = 0;
+                                    break;
+                                }
                             }
                             _ = UserDialogs.Instance.Toast(toastConfig);
-                            notificationManager.SendNotification(title, message);
+                            //notificationManager.SendNotification(title, message);
                             if (AddPause)
                                 await Task.Delay(PauseTime * 1000);
                             break;
@@ -238,13 +307,13 @@ namespace SteakTimer.ViewModels
                                 SecondCrust.Value -= SecondCrustDiff;
                                 await Task.Delay(500);
                                 if (SecondCrust.Value <= 0)
-								{
-									SecondCrust.Value = 0;
-									break;
-								}
+                                {
+                                    SecondCrust.Value = 0;
+                                    break;
+                                }
                             }
                             _ = UserDialogs.Instance.Toast(toastConfig);
-                            notificationManager.SendNotification(title, message);
+                            //notificationManager.SendNotification(title, message);
                             if (AddPause)
                                 await Task.Delay(PauseTime * 1000);
                             break;
@@ -256,13 +325,13 @@ namespace SteakTimer.ViewModels
                                 FirstFried.Value -= FirstFriedDiff;
                                 await Task.Delay(500);
                                 if (FirstFried.Value <= 0)
-								{
-									FirstFried.Value = 0;
-									break;
-								}
+                                {
+                                    FirstFried.Value = 0;
+                                    break;
+                                }
                             }
                             _ = UserDialogs.Instance.Toast(toastConfig);
-                            notificationManager.SendNotification(title, message);
+                            //notificationManager.SendNotification(title, message);
                             if (AddPause)
                                 await Task.Delay(PauseTime * 1000);
                             break;
@@ -283,7 +352,7 @@ namespace SteakTimer.ViewModels
                             message = $"Приятного аппетита";
                             toastConfig.Message = title + message;
                             _ = UserDialogs.Instance.Toast(toastConfig);
-                            notificationManager.SendNotification(title, message);
+                            //notificationManager.SendNotification(title, message);
                             break;
                         }
                 }
@@ -293,6 +362,15 @@ namespace SteakTimer.ViewModels
             SecondCrust.Value = _degreesOfCircle;
             FirstFried.Value = _degreesOfCircle;
             SecondFried.Value = _degreesOfCircle;
+            await Task.Delay(500);
+
+            DeviceDisplay.KeepScreenOn = false;
+        }
+
+        public Task<bool> StartJob()
+        {
+            Start();
+            return Task.FromResult(false);
         }
     }
 }
