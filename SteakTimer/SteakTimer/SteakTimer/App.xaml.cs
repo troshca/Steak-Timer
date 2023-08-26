@@ -30,6 +30,10 @@ namespace SteakTimer
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>();
             containerRegistry.RegisterForNavigation<SteakTimerPage, SteakTimerViewModel>();
 
+            containerRegistry.RegisterForNavigation<InfoPage, InfoPageViewModel>();
+            containerRegistry.RegisterForNavigation<CookingTimePage, CookingTimeViewModel>();
+            containerRegistry.RegisterForNavigation<TipsPage, TipsPageViewModel>();
+            containerRegistry.RegisterForNavigation<AboutPage, AboutPageViewModel>();
         }
     }
 }

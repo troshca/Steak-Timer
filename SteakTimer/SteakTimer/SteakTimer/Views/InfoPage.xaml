@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             NavigationPage.HasNavigationBar="False"
+             NavigationPage.HasBackButton="False"
+             Title="{Binding Title}"
+             x:Class="SteakTimer.Views.InfoPage">
+    <ContentPage.Content>
+        <Grid BackgroundColor="White">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+                <RowDefinition Height="15*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+                <ColumnDefinition Width="15*"/>
+            </Grid.ColumnDefinitions>
+            <Image  Grid.Row="1" Grid.RowSpan="6"
+                    Source="info_icon_hr"/>
+
+            <Button Grid.Row="9" Grid.ColumnSpan="9"
+                    WidthRequest="300"
+                    HorizontalOptions="Center"
+                    Text="Время приготовления"
+                    FontSize="Medium"
+                    Command="{Binding CoockingTimeCommand}"/>
+            <Button Grid.Row="10" Grid.ColumnSpan="9"
+                    WidthRequest="300"
+                    HorizontalOptions="Center"
+                    Text="Советы"
+                    FontSize="Medium"
+                    Command="{Binding TipsCommand}"/>
+            <Button Grid.Row="11" Grid.ColumnSpan="9"
+                    WidthRequest="300"
+                    HorizontalOptions="Center"
+                    Text="О приложении"
+                    FontSize="Medium"
+                    Command="{Binding AboutCommand}"/>
+
+            <ImageButton  
+                    Grid.Row="11" Grid.Column="8"
+                    Source="back_icon_hr"
+                    WidthRequest="50" HeightRequest="50" 
+                    CornerRadius="25"
+                    HorizontalOptions="Center"
+                    Command="{Binding BackCommand}"/>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

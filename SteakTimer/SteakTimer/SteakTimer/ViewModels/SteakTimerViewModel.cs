@@ -16,12 +16,23 @@ using Acr.UserDialogs;
 using Xamarin.Essentials;
 using System.Reflection;
 using Plugin.LocalNotification;
+using Prism.AppModel;
+using Prism.Navigation.Xaml;
 
 namespace SteakTimer.ViewModels
 {
-    public class SteakTimerViewModel : ViewModelBase
+    public class SteakTimerViewModel : ViewModelBase, IApplicationLifecycleAware
     {
+        //For Application Lifecycle Management
+        private DateTime _timeOnSleep { get; set; }
+        private DateTime _timeOnResume { get; set; }
+        private TimeSpan _difference { get; set; }
+        private bool _wasResume { get; set; }
+        private bool _wasSleep { get; set; }
+        private bool _abort { get; set; }
         public DelegateCommand StartCommand { get; private set; }
+        public DelegateCommand AbortCommand { get; private set; }
+        public DelegateCommand InfoCommand { get; private set; }
 
         //
         private string timeLeft;
@@ -35,8 +46,11 @@ namespace SteakTimer.ViewModels
         enum Stages
         {
             FirstCrust,
+            FirstFlip,
             SecondCrust,
+            SecondFlip,
             FirstFried,
+            ThirdFlip,
             SecondFried,
             End
         }
@@ -165,8 +179,26 @@ namespace SteakTimer.ViewModels
 
             //Buttons
             StartCommand = new DelegateCommand(async () => await StartJob());
+            AbortCommand = new DelegateCommand(async () => await AbortJob());
+            InfoCommand = new DelegateCommand(() => Info());
 
-            //Notification
+            _abort = false;
+            _wasResume = false;
+        }
+
+        private Task AbortJob()
+        {
+            _abort = true;
+            _currentStage = Stages.End;
+            LocalNotificationCenter.Current.ClearAll();
+            LocalNotificationCenter.Current.CancelAll();
+            return Task.CompletedTask;
+        }
+
+        void Info()
+        {
+            var result = NavigationService.NavigateAsync("NavigationPage/InfoPage", useModalNavigation:true, animated:true);
+            if (result.IsFaulted) { System.Diagnostics.Debug.WriteLine(result.Exception.ToString()); }
         }
 
         private void ShowNotification(string title, string message)
@@ -205,10 +237,10 @@ namespace SteakTimer.ViewModels
             SecondFriedTimeInSeconds = PickerFriedSelection.Value;
 
             //Degrees per second
-            FirstCrustDiff = (double)_degreesOfCircle / FirstCrustTimeInSeconds / 2;
-            SecondCrustDiff = (double)_degreesOfCircle / SecondCrustTimeInSeconds / 2;
-            FirstFriedDiff = (double)_degreesOfCircle / FirstFriedTimeInSeconds / 2;
-            SecondFriedDiff = (double)_degreesOfCircle / SecondFriedTimeInSeconds / 2;
+            FirstCrustDiff = (double)_degreesOfCircle / FirstCrustTimeInSeconds;
+            SecondCrustDiff = (double)_degreesOfCircle / SecondCrustTimeInSeconds;
+            FirstFriedDiff = (double)_degreesOfCircle / FirstFriedTimeInSeconds;
+            SecondFriedDiff = (double)_degreesOfCircle / SecondFriedTimeInSeconds;
 
             //Messages
             string title = $"Переворачивай";
@@ -278,86 +310,205 @@ namespace SteakTimer.ViewModels
             toastConfig.Position = ToastPosition.Bottom;
             toastConfig.Duration = TimeSpan.FromSeconds(5);
 
-            for (_currentStage = Stages.FirstCrust; _currentStage <= Stages.SecondFried; _currentStage++)
+            //TimeSpans
+            TimeSpan _timeSpanFirstCrust = TimeSpan.FromSeconds(FirstCrustTimeInSeconds);
+            TimeSpan _timeSpanSecondCrust = TimeSpan.FromSeconds(SecondCrustTimeInSeconds);
+            TimeSpan _timeSpanFirstFried = TimeSpan.FromSeconds(FirstFriedTimeInSeconds);
+            TimeSpan _timeSpanSecondFried = TimeSpan.FromSeconds(SecondCrustTimeInSeconds);
+            TimeSpan _timeSpanPause = TimeSpan.FromSeconds(PauseTime);
+
+            _wasSleep = false;
+            _wasResume = false;
+
+            for (_currentStage = Stages.FirstCrust; _currentStage < Stages.End; _currentStage++)
             {
+                if(_abort)
+                { break; }
                 switch (_currentStage)
                 {
+
                     case Stages.FirstCrust:
                         {
-                            for (; ; )
+                            for ( ; ; )
                             {
+                                do
+                                {
+                                    await Task.Delay(1);
+                                } while (_wasSleep);
+
+                                if (_wasResume)
+                                {
+                                    if((FirstCrust.Value) < (_difference.TotalSeconds * FirstCrustDiff))
+                                    {
+                                        _difference = _difference.Subtract(_timeSpanFirstCrust);
+                                        FirstCrust.Value = 0;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        _wasResume = false;
+                                        FirstCrust.Value = FirstCrust.Value - _difference.TotalSeconds * FirstCrustDiff;
+                                    }
+                                }
                                 FirstCrust.Value -= FirstCrustDiff;
-                                await Task.Delay(500);
                                 if (FirstCrust.Value <= 0)
                                 {
                                     FirstCrust.Value = 0;
                                     break;
                                 }
+                                await Task.Delay(1000);
                             }
-                            _ = UserDialogs.Instance.Toast(toastConfig);
+                            //_ = UserDialogs.Instance.Toast(toastConfig);
                             //notificationManager.SendNotification(title, message);
-                            if (AddPause)
-                                await Task.Delay(PauseTime * 1000);
+
                             break;
                         }
+
                     case Stages.SecondCrust:
                         {
-                            for (; ; )
+                            for ( ; ; )
                             {
+                                do
+                                {
+                                    await Task.Delay(1);
+                                } while (_wasSleep);
+
+                                if (_wasResume)
+                                {
+                                    if (SecondCrust.Value < (_difference.TotalSeconds * SecondFriedDiff))
+                                    {
+                                        _difference.Subtract(_timeSpanSecondCrust);
+                                        SecondCrust.Value = 0;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        _wasResume = false;
+                                        SecondCrust.Value = SecondCrust.Value - _difference.TotalSeconds * SecondCrustDiff;
+                                    }
+                                }
                                 SecondCrust.Value -= SecondCrustDiff;
-                                await Task.Delay(500);
                                 if (SecondCrust.Value <= 0)
                                 {
                                     SecondCrust.Value = 0;
                                     break;
                                 }
+                                await Task.Delay(1000);
                             }
-                            _ = UserDialogs.Instance.Toast(toastConfig);
+                            //_ = UserDialogs.Instance.Toast(toastConfig);
                             //notificationManager.SendNotification(title, message);
-                            if (AddPause)
-                                await Task.Delay(PauseTime * 1000);
+
                             break;
                         }
+
                     case Stages.FirstFried:
                         {
-                            for (; ; )
+                            for ( ; ; )
                             {
+                                do
+                                {
+                                    await Task.Delay(1);
+                                } while (_wasSleep);
+
+                                if (_wasResume)
+                                {
+                                    if (FirstFried.Value < (_difference.TotalSeconds * FirstFriedDiff))
+                                    {
+                                        _difference= _difference.Subtract(_timeSpanFirstFried);
+                                        FirstFried.Value = 0;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        _wasResume = false;
+                                        FirstFried.Value = FirstFried.Value - _difference.TotalSeconds * FirstFriedDiff;
+                                    }
+                                }
                                 FirstFried.Value -= FirstFriedDiff;
-                                await Task.Delay(500);
                                 if (FirstFried.Value <= 0)
                                 {
                                     FirstFried.Value = 0;
                                     break;
                                 }
+                                await Task.Delay(1000);
                             }
-                            _ = UserDialogs.Instance.Toast(toastConfig);
+                            //_ = UserDialogs.Instance.Toast(toastConfig);
                             //notificationManager.SendNotification(title, message);
-                            if (AddPause)
-                                await Task.Delay(PauseTime * 1000);
+
                             break;
                         }
+
                     case Stages.SecondFried:
                         {
-                            for (; ; )
+                            for ( ; ; )
                             {
+                                do
+                                {
+                                    await Task.Delay(1);
+                                } while (_wasSleep);
+
+                                if (_wasResume)
+                                {
+                                    if (SecondFried.Value < (_difference.TotalSeconds * SecondFriedDiff))
+                                    {
+                                        FirstFried.Value = 0;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        _wasResume = false;
+                                        SecondFried.Value = SecondFried.Value - _difference.TotalSeconds * SecondFriedDiff;
+                                    }
+                                }
                                 SecondFried.Value -= SecondCrustDiff;
-                                await Task.Delay(500);
                                 if (SecondFried.Value <= 0)
                                 {
                                     SecondFried.Value = 0;
                                     break;
                                 }
+                                await Task.Delay(1000);
                             }
-                            title = $"Снимай!";
-                            message = $"Приятного аппетита";
-                            toastConfig.Message = title + message;
-                            _ = UserDialogs.Instance.Toast(toastConfig);
+                            //title = $"Снимай!";
+                            //message = $"Приятного аппетита";
+                            //toastConfig.Message = title + message;
+                            //_ = UserDialogs.Instance.Toast(toastConfig);
                             //notificationManager.SendNotification(title, message);
+                            break;
+                        }
+                    default:
+                        {
+                            if (AddPause)
+                            {
+                                do
+                                {
+                                    await Task.Delay(1);
+                                } while (_wasSleep);
+
+                                if (_wasResume)
+                                {
+                                    if (_difference.TotalSeconds < PauseTime)
+                                    {
+                                        _wasResume = false;
+                                        await Task.Delay((int)(PauseTime - _difference.TotalSeconds) * 1000);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        _difference = _difference.Subtract(_timeSpanPause);
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    await Task.Delay(PauseTime * 1000);
+                                }
+                            }
                             break;
                         }
                 }
             }
             Started = false;
+            _wasResume = false;
             FirstCrust.Value = _degreesOfCircle;
             SecondCrust.Value = _degreesOfCircle;
             FirstFried.Value = _degreesOfCircle;
@@ -371,6 +522,28 @@ namespace SteakTimer.ViewModels
         {
             Start();
             return Task.FromResult(false);
+        }
+
+        //For Application Lifecycle Management
+        public void OnResume()
+        {
+            if(Started)
+            {
+                _wasResume = true;
+                _wasSleep = false;
+                _timeOnResume = DateTime.Now;
+                _difference = _timeOnResume.Subtract(_timeOnSleep);
+            }
+        }
+
+        public void OnSleep()
+        {
+            if(Started)
+            {
+                _wasResume = false;
+                _wasSleep = true;
+                _timeOnSleep = DateTime.Now; 
+            }
         }
     }
 }

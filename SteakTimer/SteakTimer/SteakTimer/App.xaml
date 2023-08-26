@@ -22,9 +22,9 @@
         </Style>
 
         <Style TargetType="Button">
-            <Setter Property="BackgroundColor" Value="{StaticResource AccentColor}" />
+            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
             <Setter Property="TextColor" Value="{StaticResource TextColor}" />
-            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="CornerRadius" Value="100" />
         </Style>
 
         <Style TargetType="Button" x:Key="DarkButton">
