@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using Acr.UserDialogs;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
 using System;
@@ -10,6 +11,7 @@ namespace SteakTimer.ViewModels
     public class ViewModelBase : BindableBase, IInitialize, INavigationAware, IDestructible
     {
         protected INavigationService NavigationService { get; private set; }
+        public DelegateCommand BackCommand { get; set; }
 
         private string _title;
         public string Title
@@ -21,6 +23,13 @@ namespace SteakTimer.ViewModels
         public ViewModelBase(INavigationService navigationService)
         {
             NavigationService = navigationService;
+            BackCommand = new DelegateCommand(Back);
+        }
+
+        void Back()
+        {
+            var result = NavigationService.GoBackAsync();
+            if (result.IsFaulted) { System.Diagnostics.Debug.WriteLine(result.Exception.ToString()); }
         }
 
         public virtual void Initialize(INavigationParameters parameters)

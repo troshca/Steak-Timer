@@ -150,7 +150,7 @@ namespace SteakTimer.ViewModels
             PickerFriedSelection = _timesForPickers[8];
 
             //
-            TimeLeft = "< " + ((PickerCrustSelection.Value * 2) / 60 + (PickerFriedSelection.Value * 2) / 60).ToString() + "мин.";
+            //TimeLeft = "< " + ((PickerCrustSelection.Value * 2) / 60 + (PickerFriedSelection.Value * 2) / 60).ToString() + "мин.";
             //Interval = TimeSpan.FromMilliseconds(500);
 
             //Degrees of Circle
@@ -214,7 +214,7 @@ namespace SteakTimer.ViewModels
 
         public async void Start()
         {
-
+            _abort = false;
             if (await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
             {
                 await LocalNotificationCenter.Current.RequestNotificationPermission();
@@ -351,6 +351,8 @@ namespace SteakTimer.ViewModels
                                     }
                                 }
                                 FirstCrust.Value -= FirstCrustDiff;
+                                if (_abort)
+                                { break; }
                                 if (FirstCrust.Value <= 0)
                                 {
                                     FirstCrust.Value = 0;
@@ -388,6 +390,8 @@ namespace SteakTimer.ViewModels
                                     }
                                 }
                                 SecondCrust.Value -= SecondCrustDiff;
+                                if (_abort)
+                                { break; }
                                 if (SecondCrust.Value <= 0)
                                 {
                                     SecondCrust.Value = 0;
@@ -425,6 +429,8 @@ namespace SteakTimer.ViewModels
                                     }
                                 }
                                 FirstFried.Value -= FirstFriedDiff;
+                                if (_abort)
+                                { break; }
                                 if (FirstFried.Value <= 0)
                                 {
                                     FirstFried.Value = 0;
@@ -461,6 +467,8 @@ namespace SteakTimer.ViewModels
                                     }
                                 }
                                 SecondFried.Value -= SecondCrustDiff;
+                                if (_abort)
+                                { break; }
                                 if (SecondFried.Value <= 0)
                                 {
                                     SecondFried.Value = 0;
@@ -477,6 +485,8 @@ namespace SteakTimer.ViewModels
                         }
                     default:
                         {
+                            if (_abort)
+                            { break; }
                             if (AddPause)
                             {
                                 do

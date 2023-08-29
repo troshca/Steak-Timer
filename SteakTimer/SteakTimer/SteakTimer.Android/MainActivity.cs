@@ -4,11 +4,11 @@ using Android.Content.PM;
 using Android.OS;
 using Prism;
 using Prism.Ioc;
-using SteakTimer.Interfaces;
 using Xamarin.Forms;
 using Acr.UserDialogs;
 using Plugin.LocalNotification;
 using Plugin.LocalNotification.AndroidOption;
+
 
 namespace SteakTimer.Droid
 {

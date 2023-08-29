@@ -5,10 +5,122 @@
              NavigationPage.HasBackButton="False"
              x:Class="SteakTimer.Views.CookingTimePage">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
+        <StackLayout Padding="10" BackgroundColor="White">
+            <Grid BackgroundColor="White">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="15*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="15*"/>
+                    <ColumnDefinition Width="15*"/>
+                    <ColumnDefinition Width="15*"/>
+                    <ColumnDefinition Width="15*"/>
+                    <ColumnDefinition Width="15*"/>
+                    <ColumnDefinition Width="15*"/>
+                    <ColumnDefinition Width="15*"/>
+                    <ColumnDefinition Width="15*"/>
+                </Grid.ColumnDefinitions>
+
+                <ScrollView Grid.Row="0" Grid.Column="0"
+                             Grid.RowSpan="13" Grid.ColumnSpan="9">
+                    <StackLayout>
+                        <Label 
+                        FontSize="Large"
+                        Text="{Binding CookingTimeTitle}"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding Time1}"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding Time2}"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding Time3}"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding Time4}"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding Time5}"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding Time6}"/>
+
+                        <Label
+                        HorizontalTextAlignment="Center"
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Rare"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding TimeDegr1}"/>
+                        <Label
+                        HorizontalTextAlignment="Center"
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Medium Rare"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding TimeDegr2}"/>
+                        <Label
+                        HorizontalTextAlignment="Center"
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Medium"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding TimeDegr3}"/>
+                        <Label
+                        HorizontalTextAlignment="Center"
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Medium Well"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding TimeDegr4}"/>
+                        <Label
+                        HorizontalTextAlignment="Center"
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        Text="Well Done"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding TimeDegr5}"/>
+
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding Time7}"/>
+                        <Label
+                        FontSize="Medium"
+                        Text="{Binding Time8}"/>
+                    </StackLayout>
+                </ScrollView>
+                
+
+
+
+                <ImageButton  
+                    Grid.Row="11" Grid.Column="7"
+                    Source="back_icon_hr"
+                    Aspect="AspectFill"
+                    BorderColor="White"
+                    BorderWidth="2"
+                    CornerRadius="50"
+                    HorizontalOptions="Start"
+                    Command="{Binding BackCommand}"/>
+            </Grid>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

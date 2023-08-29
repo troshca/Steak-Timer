@@ -11,6 +11,7 @@ namespace SteakTimer.ViewModels
         public DelegateCommand AboutCommand { get; private set; }
         public DelegateCommand CoockingTimeCommand { get; private set; }
         public DelegateCommand TipsCommand { get; private set; }
+        //public DelegateCommand BackCommand { get; private set; }
         public InfoPageViewModel(INavigationService navigationService) : base(navigationService)
         {
             Title = "Полезное";
@@ -19,6 +20,7 @@ namespace SteakTimer.ViewModels
             AboutCommand = new DelegateCommand(() => About());
             CoockingTimeCommand = new DelegateCommand(() => CookingTime());
             TipsCommand = new DelegateCommand(() => Tips());
+            //BackCommand = new DelegateCommand(() => Back());
         }
 
         void About()

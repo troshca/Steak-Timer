@@ -61,24 +61,21 @@
                     Orientation="Horizontal" HorizontalOptions="Center">
 
                     <ImageButton  Source="abort_icon_hr"
-                                  Aspect="AspectFill"
-                                  BorderColor="White"
-                                  BorderWidth="2"
-                                  CornerRadius="50"
+                                  Aspect="AspectFit"
                                   HorizontalOptions="Start"
-                                  Command="{Binding AbordCommand}"
+                                  BackgroundColor="White"
+                                  Command="{Binding AbortCommand}"
                                   IsEnabled="{Binding Started}"/>
 
                     <ImageButton  Source="start_icon_hr"
-                                  WidthRequest="50" HeightRequest="50" 
-                                  CornerRadius="25"
                                   HorizontalOptions="Center"
+                                  BackgroundColor="White"
                                   Command="{Binding StartCommand}" 
                                   IsEnabled="{Binding Started, Converter={StaticResource InvertedBoolConverter}}"/>
 
                     <ImageButton  Source="info_icon_hr"
-                                  CornerRadius="100"
                                   HorizontalOptions="Start"
+                                  BackgroundColor="White"
                                   Command="{Binding InfoCommand}"
                                   IsEnabled="{Binding Started, Converter={StaticResource InvertedBoolConverter}}"/>
 

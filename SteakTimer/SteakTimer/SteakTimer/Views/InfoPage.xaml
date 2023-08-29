@@ -6,6 +6,7 @@
              Title="{Binding Title}"
              x:Class="SteakTimer.Views.InfoPage">
     <ContentPage.Content>
+        <StackLayout Padding="10">
         <Grid BackgroundColor="White">
             <Grid.RowDefinitions>
                 <RowDefinition Height="15*"/>
@@ -32,22 +33,22 @@
                 <ColumnDefinition Width="15*"/>
                 <ColumnDefinition Width="15*"/>
             </Grid.ColumnDefinitions>
-            <Image  Grid.Row="1" Grid.RowSpan="6"
+            <Image  Grid.Row="1" Grid.Column="1" Grid.RowSpan="6" Grid.ColumnSpan="6"
                     Source="info_icon_hr"/>
 
-            <Button Grid.Row="9" Grid.ColumnSpan="9"
+            <Button Grid.Row="9" Grid.ColumnSpan="8"
                     WidthRequest="300"
                     HorizontalOptions="Center"
                     Text="Время приготовления"
                     FontSize="Medium"
                     Command="{Binding CoockingTimeCommand}"/>
-            <Button Grid.Row="10" Grid.ColumnSpan="9"
+            <Button Grid.Row="10" Grid.ColumnSpan="8"
                     WidthRequest="300"
                     HorizontalOptions="Center"
                     Text="Советы"
                     FontSize="Medium"
                     Command="{Binding TipsCommand}"/>
-            <Button Grid.Row="11" Grid.ColumnSpan="9"
+            <Button Grid.Row="11" Grid.ColumnSpan="8"
                     WidthRequest="300"
                     HorizontalOptions="Center"
                     Text="О приложении"
@@ -55,12 +56,13 @@
                     Command="{Binding AboutCommand}"/>
 
             <ImageButton  
-                    Grid.Row="11" Grid.Column="8"
+                    Grid.Row="11" Grid.Column="7"
                     Source="back_icon_hr"
-                    WidthRequest="50" HeightRequest="50" 
-                    CornerRadius="25"
-                    HorizontalOptions="Center"
+                    Aspect="AspectFit"
+                    HorizontalOptions="Start"
+                    BackgroundColor="White"
                     Command="{Binding BackCommand}"/>
         </Grid>
+        </StackLayout>
     </ContentPage.Content>
 </ContentPage>
